@@ -1,5 +1,5 @@
 {
-    "name": "amos/cms-module-userauth",
+    "name": "open20/open2-cms-module-userauth",
     "description": "Authsystem with username and password for a given cms page area.",
     "type": "cms-module",
     "keywords": ["cms", "auth"],
