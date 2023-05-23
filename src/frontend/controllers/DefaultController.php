@@ -6,6 +6,7 @@ use amos\userauth\frontend\Module;
 use amos\userauth\frontend\utility\CmsUserauthUtility;
 use amos\userauth\models\FirstAccessForm;
 use amos\userauth\models\UserLoginForm;
+use open20\amos\core\applications\CmsApplication;
 use open20\amos\admin\AmosAdmin;
 use open20\amos\admin\models\ForgotPasswordForm;
 use open20\amos\admin\models\RegisterForm;
@@ -15,7 +16,6 @@ use open20\amos\community\models\Community;
 use open20\amos\core\interfaces\InvitationExternalInterface;
 use open20\amos\core\module\AmosModule;
 use open20\amos\core\user\User;
-use open20\amos\core\utilities\CoreCommonUtility;
 use open20\amos\core\utilities\CurrentUser;
 use open20\amos\invitations\models\Invitation;
 use open20\amos\socialauth\utility\SocialAuthUtility;
@@ -39,8 +39,15 @@ class DefaultController extends Controller
      * @var Module $module
      */
     public $module;
+    /**
+     * 
+     * @var type
+     */
     public $adminModule;
 
+    /**
+     * 
+     */
     public function init()
     {
         parent::init();
@@ -84,9 +91,11 @@ class DefaultController extends Controller
 
         $this->beforeUserLogin($model);
 
-
         if (\Yii::$app->request->get('redirectToRegisterUrl')) {
-            \Yii::$app->session->set('redirect_url_spid', \Yii::$app->request->get('redirectToRegisterUrl'));
+            \Yii::$app->session->set(
+                'redirect_url_spid',
+                \Yii::$app->request->get('redirectToRegisterUrl')
+            );
         }
 
         //if you do reconciliation set redirect url of reconciliation-thank-you
@@ -96,10 +105,15 @@ class DefaultController extends Controller
         }
 
         $authTimeout = 3600 * 24 * 30;
-        if(!empty(\Yii::$app->user->authTimeout)){
+        if (!empty(\Yii::$app->user->authTimeout)) {
             $authTimeout = \Yii::$app->user->authTimeout;
         }
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && Yii::$app->user->login($model->user, $model->rememberme ? $authTimeout : 0)) {
+        
+        if (
+            $model->load(Yii::$app->request->post())
+            && $model->validate()
+            && Yii::$app->user->login($model->user, $model->rememberme ? $authTimeout : 0)
+        ) {
             //DL Semplification
             /** @var \open20\amos\socialauth\Module $socialModule */
             $socialModule = Yii::$app->getModule('socialauth');
@@ -121,15 +135,20 @@ class DefaultController extends Controller
             }
 
             $this->afterUserLogin($model);
-            if (\Yii::$app instanceof \open20\amos\core\applications\CmsApplication) {
-                \Yii::$app->session->set('access_token', \Yii::$app->getUser()->identity->getAccessToken());
+            if (\Yii::$app instanceof CmsApplication) {
+                \Yii::$app->session->set(
+                    'access_token',
+                    \Yii::$app->getUser()->identity->getAccessToken()
+                );
             }
+            
             $to_go = null;
             if (!empty($redir)) {
                 $to_go = $this->redirect($this->getRedirectUrl($redir));
             } else {
                 $to_go = $this->redirect($this->getRedirectUrl(""));
             }
+            
             return $to_go;
         }
 
@@ -699,6 +718,9 @@ class DefaultController extends Controller
         $redirectUrl = \Yii::$app->getUser()->loginUrl;
         $precompileUsernameOnFirstAccess = $this->module->precompileUsernameOnFirstAccess;
         $isFirstAccess = false;
+        
+        $model = new FirstAccessForm();
+
         if (NULL !== (Yii::$app->getRequest()->getQueryParam('token'))) {
             $password_reset_token = Yii::$app->getRequest()->getQueryParam('token');
             $user = User::findByPasswordResetToken($password_reset_token);
@@ -708,7 +730,6 @@ class DefaultController extends Controller
             }
         }
 
-
         $postLoginUrl = null;
         if (!is_null(Yii::$app->getRequest()->get('url_previous'))) {
             $postLoginUrl = Yii::$app->getRequest()->get('url_previous');
@@ -716,30 +737,34 @@ class DefaultController extends Controller
 
         if ((Yii::$app->getRequest()->get('community_id')) !== NULL) {
             $community_id = Yii::$app->getRequest()->getQueryParam('community_id');
-//            $postLoginUrl  = Yii::$app->getUrlManager()->createUrl(['/community/join', 'id' => $community_id]);
         }
+
         if ($user && !$username) {
             if (Yii::$app->request->isPost) {
-                $model = new FirstAccessForm();
                 if ($isFirstAccess && is_null($user->userProfile->privacy)) {
                     $model->setScenario(FirstAccessForm::SCENARIO_CHECK_PRIVACY);
                 }
-                if ($model->load(Yii::$app->request->post())) {
+
+                if (($model->load(Yii::$app->request->post())) && $model->validate()) {
+                    
+                    
                     if ($model->verifyUsername($model->username)) {
                         Yii::$app->getSession()->addFlash('danger',
                             Yii::t('amosadmin',
                                 'Attenzione! La username inserita &egrave; gi&agrave; in uso. Sceglierne un&#39;altra.'));
-                        return $this->render('first_access',
-                            [
-                                'model' => $model,
-                                'isFirstAccess' => $isFirstAccess && is_null($user->userProfile->privacy)
-                            ]);
+                        return $this->render('first_access', [
+                            'model' => $model,
+                            'isFirstAccess' => $isFirstAccess
+                                && is_null($user->userProfile->privacy)
+                        ]);
                     } else {
                         $user->setPassword($model->password);
                         $user->username = $model->username;
                         if ($user->validate() && $user->save()) {
-                            Yii::$app->getSession()->addFlash('success',
-                                Yii::t('amosadmin', 'Perfetto! Hai scelto correttamente le tue credenziali.'));
+                            Yii::$app->getSession()->addFlash(
+                                'success',
+                                Yii::t('amosadmin', 'Perfetto! Hai scelto correttamente le tue credenziali.')
+                            );
                             $user->removePasswordResetToken();
                             $user->save();
                             if ($isFirstAccess) {
@@ -760,14 +785,12 @@ class DefaultController extends Controller
                     }
                 } else {
                     $model->token = $password_reset_token;
-                    return $this->render('first_access',
-                        [
-                            'model' => $model,
-                            'isFirstAccess' => $isFirstAccess
-                        ]);
+                    return $this->render('first_access', [
+                        'model' => $model,
+                        'isFirstAccess' => $isFirstAccess
+                    ]);
                 }
             } else {
-                $model = new FirstAccessForm();
                 if ($precompileUsernameOnFirstAccess) {
                     $model->username = $user->email;
                 }
@@ -775,26 +798,30 @@ class DefaultController extends Controller
                     $model->setScenario(FirstAccessForm::SCENARIO_CHECK_PRIVACY);
                 }
                 $model->token = $password_reset_token;
-                return $this->render('first_access',
-                    [
-                        'model' => $model,
-                        'isFirstAccess' => $isFirstAccess && is_null($user->userProfile->privacy)
-                    ]);
+                return $this->render('first_access', [
+                    'model' => $model,
+                    'isFirstAccess' => $isFirstAccess
+                    && is_null($user->userProfile->privacy)
+                ]);
             }
         } else if ($user && $username) {
-
             if (Yii::$app->request->isPost) {
-                $model = new FirstAccessForm();
                 if ($isFirstAccess && is_null($user->userProfile->privacy)) {
                     $model->setScenario(FirstAccessForm::SCENARIO_CHECK_PRIVACY);
+                } else {
+                    $model->setScenario(FirstAccessForm::RESET_PASSWORD);
                 }
-                if ($model->load(Yii::$app->request->post())) {
+        
+                if (($model->load(Yii::$app->request->post())) && $model->validate()) {
 
                     $user->setPassword($model->password);
 
                     if ($user->validate() && $user->save()) {
-                        Yii::$app->getSession()->addFlash('success',
-                            Yii::t('amosadmin', 'Perfetto! Hai scelto correttamente la tua password.'));
+                        Yii::$app->getSession()->addFlash(
+                            'success',
+                            Yii::t('amosadmin', 'Perfetto! Hai scelto correttamente la tua password.')
+                        );
+                        
                         $user->removePasswordResetToken();
                         $user->save();
                         if ($isFirstAccess) {
@@ -802,49 +829,59 @@ class DefaultController extends Controller
                             $profile->privacy = 1;
                             $profile->save(false);
                         }
-                        return $this->login($username, $model->password, $community_id, $postLoginUrl, $isFirstAccess);
+
+                        return $this->login(
+                            $username,
+                            $model->password,
+                            $community_id,
+                            $postLoginUrl,
+                            $isFirstAccess
+                        );
                     } else {
-                        //return $this->render('login_error', ['message' => Yii::t('amosadmin', " Errore! Il sito non ha risposto, probabilmente erano in corso operazioni di manutenzione. Riprova più tardi.")]);
-                        return $this->render('security-message',
-                            [
-                                'title_message' => AmosAdmin::t('amosadmin', 'Spiacenti'),
-                                'result_message' => AmosAdmin::t('amosadmin',
-                                    " Errore! Il sito non ha risposto, probabilmente erano in corso operazioni di manutenzione. Riprova più tardi.")
-                            ]);
+                        return $this->render('security-message', [
+                            'title_message' => AmosAdmin::t('amosadmin', 'Spiacenti'),
+                            'result_message' => AmosAdmin::t('amosadmin', ' Errore! Il sito non ha risposto, probabilmente erano in corso operazioni di manutenzione. Riprova più tardi.')
+                        ]);
                     }
                 } else {
                     $model->token = $password_reset_token;
                     $model->username = $username;
-                    return $this->render('reset_password',
-                        [
-                            'model' => $model,
-                            'isFirstAccess' => $isFirstAccess && is_null($user->userProfile->privacy)
-                        ]);
+                    
+                    return $this->render('reset_password', [
+                        'model' => $model,
+                        'isFirstAccess' => $isFirstAccess
+                            && is_null($user->userProfile->privacy)
+                    ]);
                 }
             } else {
-                $model = new FirstAccessForm();
                 if ($isFirstAccess && is_null($user->userProfile->privacy)) {
                     $model->setScenario(FirstAccessForm::SCENARIO_CHECK_PRIVACY);
                 }
+                
                 $model->token = $password_reset_token;
                 $model->username = $username;
-                return $this->render('reset_password',
-                    [
-                        'model' => $model,
-                        'isFirstAccess' => $isFirstAccess && is_null($user->userProfile->privacy)
-                    ]);
+                
+                return $this->render('reset_password', [
+                    'model' => $model,
+                    'isFirstAccess' => $isFirstAccess
+                        && is_null($user->userProfile->privacy)
+                ]);
             }
         } else {
-            //return $this->render('login_error', ['message' => Yii::t('amosadmin', ' Errore! Il tempo per poter accedere è scaduto. Contatti l\'amministratore e si faccia reinviare la mail di accesso.')]);
             $tokenErrorMessage = AmosAdmin::t('amosadmin', "#insert_auth_data_token_expired_message");
 
             // Pickup assistance params
-            $assistance = isset(\Yii::$app->params['assistance']) ? \Yii::$app->params['assistance'] : [];
+            $assistance = isset(\Yii::$app->params['assistance'])
+                ? \Yii::$app->params['assistance']
+                : [];
 
             // Check if is in email mode
             $isMail = ((isset($assistance['type']) && $assistance['type'] == 'email') || (!isset($assistance['type']) && isset(\Yii::$app->params['email-assistenza']))) ? true : false;
+            
             $mailAddress = isset($assistance['email']) ? $assistance['email'] : (isset(\Yii::$app->params['email-assistenza']) ? \Yii::$app->params['email-assistenza'] : '');
+            
             $linkHref = $isMail ? 'mailto:' . $mailAddress : (isset($assistance['url']) ? $assistance['url'] : '');
+            
             if ((isset($assistance['enabled']) && $assistance['enabled']) || (!isset($assistance['enabled']) && isset(\Yii::$app->params['email-assistenza']))) {
                 $tokenErrorMessage .= Html::tag('br') .
                     AmosAdmin::t('amosadmin', "#insert_auth_data_token_expired_message_contact_assistance") . ' ' .
@@ -868,12 +905,11 @@ class DefaultController extends Controller
                     );
             }
 
-            return $this->render('security-message',
-                [
-                    'title_message' => AmosAdmin::t('amosadmin', 'Spiacenti'),
-                    'result_message' => $tokenErrorMessage,
-                    'hideGoBackBtn' => true
-                ]);
+            return $this->render('security-message', [
+                'title_message' => AmosAdmin::t('amosadmin', 'Spiacenti'),
+                'result_message' => $tokenErrorMessage,
+                'hideGoBackBtn' => true
+            ]);
         }
     }
 
@@ -883,10 +919,17 @@ class DefaultController extends Controller
      * @param string $password
      * @param int|null $community_id
      * @param string|null $postLoginUrl
+     * @param type $isFirstAccess
      * @return string|Response
      * @throws \Exception
      */
-    protected function login($usernameOrEmail, $password, $community_id = null, $postLoginUrl = null, $isFirstAccess = false)
+    protected function login(
+        $usernameOrEmail,
+        $password,
+        $community_id = null,
+        $postLoginUrl = null,
+        $isFirstAccess = false
+    )
     {
         /** @var LoginForm $model */
         $model = $this->adminModule->createModel('LoginForm');
@@ -900,9 +943,11 @@ class DefaultController extends Controller
         }
 
         if ($model->login()) {
-            if (\Yii::$app instanceof \open20\amos\core\applications\CmsApplication) {
-                \Yii::$app->session->set('access_token', \Yii::$app->getUser()->identity->getAccessToken());
-
+            if (\Yii::$app instanceof CmsApplication) {
+                \Yii::$app->session->set(
+                    'access_token',
+                    \Yii::$app->getUser()->identity->getAccessToken()
+                );
             }
 
             /* per amos */
@@ -912,7 +957,6 @@ class DefaultController extends Controller
                 \Yii::$app->authManager->revokeAll($userId);
                 \Yii::$app->authManager->assign($ruolo, $userId);
             }
-
 
             if ($isFirstAccess && !is_null($user->userProfile->first_access_mail_url)) {
                 $mailUrl = $user->userProfile->first_access_mail_url;
@@ -926,7 +970,13 @@ class DefaultController extends Controller
             } else if (!is_null($postLoginUrl)) {
                 return $this->redirect($postLoginUrl);
             } else if ($community_id != null) {
-                return $this->redirect(Yii::$app->getUrlManager()->createUrl(['/community/join', 'id' => $community_id, 'subscribe' => 1]));
+                return $this->redirect(
+                    Yii::$app->getUrlManager()->createUrl([
+                        '/community/join',
+                        'id' => $community_id,
+                        'subscribe' => 1
+                    ])
+                );
             } else {
                 return $this->goBack();
             }

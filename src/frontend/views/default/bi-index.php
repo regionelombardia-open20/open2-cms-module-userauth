@@ -40,11 +40,9 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
         <?= $form->field($model, 'password')->passwordInput(); ?>
 
         <div class="d-md-flex flex-wrap">
-            <?php if (!$theModule->hideResetPasswordLogin) : ?>
-                <div class="mt-2 order-md-2 mr-auto mr-md-0">
-                    <p class="mb-0"><a href="<?= '/' . $language_code . $forgotPwdUrl ?>" title="<?= Module::t('Inizia la procedura di recupero password') ?>"><?= Module::t('Hai dimenticato la password?') ?></a></p>
-                </div>
-            <?php endif; ?>
+            <div class="mt-2 order-md-2 mr-auto mr-md-0">
+                <p class="mb-0"><a href="<?= '/' . $language_code . $forgotPwdUrl ?>" title="<?= Module::t('Inizia la procedura di recupero password') ?>"><?= Module::t('Hai dimenticato la password?') ?></a></p>
+            </div>
             <div class="order-md-1 mr-md-auto">
                 <div class="form-check">
                     <?= $form->field($model, 'rememberme')->checkbox([
@@ -53,6 +51,7 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
                     ])->label('Ricordami') ?>
                 </div>
             </div>
+
         </div>
 
         <?= Html::submitButton(
@@ -100,7 +99,7 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
 
 <?php endif ?>
 
-<?php if ($theModule && $theModule->enableUserPasswordLogin && $theModule->enableSPID) : ?>
+<?php if ($theModule && $theModule->enableUserPasswordLogin && $theModule->enableSPID ) : ?>
     <hr class="mb-5">
 <?php endif; ?>
 

@@ -14,34 +14,27 @@ use amos\userauth\frontend\Module;
 use open20\design\components\bootstrapitalia\ActiveForm;
 
 $this->title = 'Primo accesso';
-$textPwd = 'La password deve contenere almeno: 8 caratteri, lettere maiuscole e minuscole ed almeno un numero';
+$textPwd = Module::t('#password_rules');
 
+$form = ActiveForm::begin([
+    'options' => [
+        'class' => 'userauth-first-access-form needs-validation form-rounded'
+    ]
+]);
 ?>
+
 <div class="container py-4 my-5">
     <div class="row nop">
         <div class="col-md-6 mx-auto">
             <h1 class="h2">Primo accesso</h1>
-            <p class="mb-5">Compila i seguenti campi per scegliere le tue credenziali di accesso alla piattaforma</p>
+            <p class="mb-5"><?= Module::t('#first_access_fill_the_form') ?></p>
             <div class="form-rounded">
-
-
-                <?php
-                $form = ActiveForm::begin(
-                    [
-                        'options' =>
-                        [
-                            'class' => 'userauth-first-access-form needs-validation form-rounded'
-                        ]
-                    ]
-                )
-                ?>
-
                 <div class="">
                     <?= $form->field($model, 'username')->textInput() ?>
                 </div>
 
                 <div>
-                    <?= $form->field($model, 'password')->passwordInput([
+<?php /**                    <?= $form->field($model, 'password')->passwordInput([
                         'label' => Module::t('Nuova password'),
                         'placeholder' => Module::t('inserisci la nuova password'),
                         'helperTooltip' => $textPwd,
@@ -49,6 +42,22 @@ $textPwd = 'La password deve contenere almeno: 8 caratteri, lettere maiuscole e 
                         'data-enter-pass' => ''
                     ])
                     ?>
+                    
+         */ ?>
+                    
+                            <?= $form->field($model, 'password')->widget(PasswordInput::class, [
+            'language' => 'it',
+            'options' => [
+                'autocomplete' => 'off'
+            ],
+            'pluginOptions' => [
+                'showMeter' => true,
+                'toggleMask' => true,
+                'language' => 'it'
+            ]
+        ])
+        ?>
+
                 </div>
 
                 <?= $form->field($model, 'ripetiPassword')->passwordInput([

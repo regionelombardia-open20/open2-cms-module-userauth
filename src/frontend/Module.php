@@ -6,18 +6,18 @@ use luya\base\Module as BaseModule;
 
 class Module extends BaseModule
 {
-    const USERAUTH_CONFIG_REDIRECT_NAV_ID     = 'userauth_redirect_nav_id';
-    const USERAUTH_CONFIG_AFTER_LOGIN_NAV_ID  = 'userauth_afterlogin_nav_id';
+
+    const USERAUTH_CONFIG_REDIRECT_NAV_ID = 'userauth_redirect_nav_id';
+    const USERAUTH_CONFIG_AFTER_LOGIN_NAV_ID = 'userauth_afterlogin_nav_id';
     const NOPERMISSION_CONFIG_REDIRECT_NAV_ID = 'nopermission_redirect_nav_id';
 
     private static $moduleName = 'userauthfrontend';
-    public $enableSPID   = false;
+    public $enableSPID = false;
     public $enableSocial = false;
     public $enableAgidLogin = false;
     public $enableRegister = true;
     public $enableEmailLogin = false;
     public $enableUserPasswordLogin = true;
-    public $hideResetPasswordLogin = false;
     public $enableOverrideSPIDemail = false;
     public $enableDlSemplificationLight = false;
     public $viewLayout = null;
@@ -45,12 +45,6 @@ class Module extends BaseModule
         static::$moduleName = $name;
     }
 
-
-    public function init()
-    {
-        parent::init();
-    }
-
     /**
      * Return an instance of module
      *
@@ -63,7 +57,6 @@ class Module extends BaseModule
         return $module;
     }
 
-
     /**
      *
      * @param string $url
@@ -71,7 +64,7 @@ class Module extends BaseModule
      */
     public static function toUrlModule($url)
     {
-        return '/' . static::getModuleName().$url;
+        return '/' . static::getModuleName() . $url;
     }
 
     /**
@@ -80,7 +73,7 @@ class Module extends BaseModule
     public static function onLoad()
     {
         self::registerTranslation('userauth',
-            static::staticBasePath().'/messages',
+            static::staticBasePath() . '/messages',
             [
                 'userauth' => 'userauth.php',
         ]);
@@ -93,4 +86,5 @@ class Module extends BaseModule
     {
         return parent::baseT('userauth', $message, $params);
     }
+
 }
