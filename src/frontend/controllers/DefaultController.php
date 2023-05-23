@@ -105,7 +105,6 @@ class DefaultController extends Controller {
             $forgotPwdUrl = Module::toUrlModule('/default/forgot-password');
         }
 
-
         return $this->render(
             'bi-index',
             [
@@ -227,20 +226,39 @@ class DefaultController extends Controller {
 
         $socialAccount = false;
 
+        // if($this->module->enableOverrideSPIDemail && isset($getParams['email'])) {
+        //     \Yii::$app->session->set('customEmail', $getParams['email']);
+        // }
+        //
+        // if($this->module->enableOverrideSPIDemail && \Yii::$app->session->get('customEmail') != null) {
+        //     $spidData['emailAddress'] = \Yii::$app->session->get('customEmail');
+        // }
+
         if (!empty($getParams['name']) && !empty($getParams['surname']) && !empty($getParams['email'])) {
             $model->nome = $getParams['name'];
             $model->cognome = $getParams['surname'];
             $model->email = $getParams['email'];
+
+            if($this->module->enableOverrideSPIDemail) {
+                 \Yii::$app->session->set('custom-spid-email', $getParams['email']);
+            }
+
         } elseif ($socialProfile && $socialProfile->email) {
             $model->nome = $socialProfile->firstName;
             $model->cognome = $socialProfile->lastName;
             $model->email = $socialProfile->email;
             $socialAccount  = true;
+
         } elseif (!empty($spidData)) {
             $model->nome = $spidData['nome'];
             $model->cognome = $spidData['cognome'];
-            $model->email = $spidData['emailAddress'];
             $socialAccount  = true;
+
+            if($this->module->enableOverrideSPIDemail && \Yii::$app->session->get('custom-spid-email') != null) {
+                 $model->email = \Yii::$app->session->get('custom-spid-email');
+            } else {
+                 $model->email = $spidData['emailAddress'];
+            }
         }
 
         // Used for external invitation registrations

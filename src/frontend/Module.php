@@ -16,9 +16,10 @@ class Module extends BaseModule
     public $enableRegister = true;
     public $enableEmailLogin = false;
     public $enableUserPasswordLogin = true;
+    public $enableOverrideSPIDemail = false;
     public $remember_length = 8600 * 24 * 30;
     public $viewLayout = null;
-     
+
     /**
      * @var bool
      */
@@ -56,7 +57,7 @@ class Module extends BaseModule
     {
         return '/' . static::getModuleName().$url;
     }
-    
+
     /**
      * @inheritdoc
      */

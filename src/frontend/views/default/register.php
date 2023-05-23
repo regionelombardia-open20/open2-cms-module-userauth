@@ -16,8 +16,6 @@ use open20\design\assets\BootstrapItaliaDesignAsset;
 use open20\design\components\bootstrapitalia\ActiveForm;
 use yii\web\View;
 
-//use yii\bootstrap\Modal;
-
 $theModule = Module::instance();
 
 $currentAsset = BootstrapItaliaDesignAsset::register($this);
@@ -39,7 +37,7 @@ $js = <<<JS
         event.preventDefault();
         $('#modal-privacy').modal('show');
     });
-    
+
     $('.radio-privacy input').click(function(){
          var checked = $('.radio-privacy input:checked').val();
          if(checked == 1){
@@ -57,9 +55,9 @@ $js = <<<JS
             $('#modal-privacy').modal('toggle');
         }
     });
-    
+
     var privacyElement = $('#$privacyElementId');
-    
+
     function checkPrivacy(elem) {
         if (elem.is(":checked")) {
             elem.val(1);
@@ -67,9 +65,9 @@ $js = <<<JS
             elem.val(0);
         }
     }
-    
+
     checkPrivacy(privacyElement);
-    
+
     privacyElement.on('change', function(event) {
         checkPrivacy($(this));
     })
