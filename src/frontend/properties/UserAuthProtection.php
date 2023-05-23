@@ -14,14 +14,12 @@ use luya\cms\models\NavItem;
 use Yii;
 use yii\helpers\ArrayHelper;
 
-class UserAuthProtection extends CheckboxProperty
-{
+class UserAuthProtection extends CheckboxProperty {
 
     /**
      * @inheritdoc
      */
-    public function init()
-    {
+    public function init() {
         parent::init();
 
         $this->on(self::EVENT_BEFORE_RENDER, [$this, 'ensureUserAccess']);
@@ -32,27 +30,27 @@ class UserAuthProtection extends CheckboxProperty
      *
      * @param BeforeRenderEvent $event
      */
-    public function ensureUserAccess(BeforeRenderEvent $event)
-    {
+    public function ensureUserAccess(BeforeRenderEvent $event) {
         if ($this->getValue() == 1) {
             if (Yii::$app->user->isGuest) {
-
+                throw new \yii\web\ForbiddenHttpException(Module::t('Non hai i privilegi per visualizzare la pagina.'));
                 // find the nav item to redirect from config
-                $navItem = Yii::$app->menu->find()->where([QueryOperatorFieldInterface::FIELD_NAVID => Config::get(Module::USERAUTH_CONFIG_REDIRECT_NAV_ID)])->with([
-                        'hidden'])->one();
-
-                // redirect to the given nav item
-                return Yii::$app->response->redirect($navItem->absoluteLink.'?redir='.urlencode($event->menu->absoluteLink));
+//                $navItem = Yii::$app->menu->find()->where([QueryOperatorFieldInterface::FIELD_NAVID => Config::get(Module::USERAUTH_CONFIG_REDIRECT_NAV_ID)])->with([
+//                        'hidden'])->one();
+//throw new  yii\web\NotFoundHttpException(Module::t('Non hai i privilegi per visualizzare la pagina.'));
+//                // redirect to the given nav item
+//                return Yii::$app->response->redirect($navItem->absoluteLink.'?redir='.urlencode($event->menu->absoluteLink));
             } else {
                 if (!$this->canSeePage()) {
-                    $navItem = Yii::$app->menu->find()->where([QueryOperatorFieldInterface::FIELD_NAVID => Config::get(Module::NOPERMISSION_CONFIG_REDIRECT_NAV_ID)])->with([
-                            'hidden'])->one();
-                    if ($navItem !== false) {
-                        // redirect to the given nav item
-                        return Yii::$app->response->redirect($navItem->absoluteLink);
-                    }else{
-                        return Yii::$app->response->redirect(Url::home(true));
-                    }
+                    throw new \yii\web\ForbiddenHttpException(Module::t('Non hai i privilegi per visualizzare la pagina.'));
+//                    $navItem = Yii::$app->menu->find()->where([QueryOperatorFieldInterface::FIELD_NAVID => Config::get(Module::NOPERMISSION_CONFIG_REDIRECT_NAV_ID)])->with([
+//                            'hidden'])->one();
+//                    if ($navItem !== false) {
+//                        // redirect to the given nav item
+//                        return Yii::$app->response->redirect($navItem->absoluteLink);
+//                    }else{
+//                        return Yii::$app->response->redirect(Url::home(true));
+//                    }
                 }
             }
         }
@@ -61,43 +59,46 @@ class UserAuthProtection extends CheckboxProperty
     /**
      * @inheritdoc
      */
-    public function varName()
-    {
+    public function varName() {
         return 'userAuthProtection';
     }
 
     /**
      * @inheritdoc
      */
-    public function label()
-    {
+    public function label() {
         return Module::t('userauth.propertie.userauthprotection.label');
     }
 
     /**
      *
      */
-    protected function canSeePage()
-    {
-        $canSee   = false;
+    protected function canSeePage() {
+        $canSee = false;
         $canPermission = false;
-        $nav      = Yii::$app->menu->current;
+        $nav = Yii::$app->menu->current;
         $nav_item = NavItem::findOne(['nav_id' => $nav->itemArray['nav_id']]);
         $propertyPermissions = $nav->getProperty('rolePermissions');
-        if(!empty($propertyPermissions)){
-             $canPermission = $propertyPermissions->checkPermissions();
+        $noComm = false;
+        $noPerm = false;
+        if (!empty($propertyPermissions)) {
+            $canPermission = $propertyPermissions->checkPermissions();
+        } else {
+            $noPerm = true;
         }
-
+        
         if (!is_null($nav_item)) {
             $values = $this->getBlockConfigValues($nav_item->nav_item_type_id,
-                CmsDataPageBlock::class);
+                    CmsDataPageBlock::class);
             if (isset($values['community_id'])) {
                 $canSee = CommunityUtil::userIsCommunityMember($values['community_id'],
-                        \Yii::$app->user->id);
+                                \Yii::$app->user->id);
+            } else {
+                $noComm = true;
             }
         }
 
-        return $canSee || $canPermission;
+        return ($noComm && $noPerm) || $canPermission || $canSee;
     }
 
     /**
@@ -106,9 +107,8 @@ class UserAuthProtection extends CheckboxProperty
      * @param type $class_
      * @return array
      */
-    protected function getBlockConfigValues($nav_item_page_id, $class_)
-    {
-        $items  = [];
+    protected function getBlockConfigValues($nav_item_page_id, $class_) {
+        $items = [];
         $blocks = $this->findBlockModules($nav_item_page_id, $class_);
         foreach ($blocks as $block) {
             $items = ArrayHelper::merge($items, $block->getCfgValues());
@@ -122,9 +122,9 @@ class UserAuthProtection extends CheckboxProperty
      * @param type $class_
      * @return type
      */
-    protected function findBlockModules($nav_item_page_id, $class_)
-    {
+    protected function findBlockModules($nav_item_page_id, $class_) {
         $blocks = $class_::findBlocks($nav_item_page_id);
         return $blocks;
     }
+
 }
