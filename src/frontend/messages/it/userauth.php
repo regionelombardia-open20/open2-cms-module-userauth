@@ -43,4 +43,5 @@ return [
     '#bullet_counts_propety_label' => 'Bullet count',
     '#menu_readonly_propety_label' => 'Menu visibile sempre',
     'Entra con SPID' => 'Accedi con la tua identità digitale',
+
 ];

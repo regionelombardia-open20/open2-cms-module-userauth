@@ -89,12 +89,14 @@ $this->title = Module::t('Login');
  */
 
 $socialAuthModule = Yii::$app->getModule('socialauth');
+$adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
 $socialMatch = Yii::$app->session->get('social-pending');
 $socialProfile = Yii::$app->session->get('social-profile');
 $communityId = Yii::$app->request->get('community');
 $redirectUrl = Yii::$app->request->get('redirectUrl');
 $privacyLink = \Yii::$app->params['linkConfigurations']['privacyPolicyLinkCommon'];
 $customPrivacyCheck = \Yii::$app->params['layoutConfigurations']['customPlatformPrivacyCheck'];
+$spidData = \Yii::$app->session->get('IDM');
 
 ?>
 
@@ -121,8 +123,14 @@ $customPrivacyCheck = \Yii::$app->params['layoutConfigurations']['customPlatform
                         <?= $form->field($model, 'email') ?>
 
                         <?php if (!is_null($codiceFiscale)): ?>
-                            <p><strong><?= AmosAdmin::t('amosadmin', 'Codice fiscale') . ': ' ?></strong> <?= $codiceFiscale ?></p>
+                            <p>
+                                <strong><?= AmosAdmin::t('amosadmin', 'Codice fiscale') . ': ' ?></strong> <?= $codiceFiscale ?>
+                            </p>
                         <?php endif; ?>
+
+                        <?php if (!empty($spidData)) { ?>
+                            <?= Html::hiddenInput('reg_with_spid', 1) ?>
+                        <?php } ?>
 
                         <?= \open20\amos\core\helpers\Html::hiddenInput(\open20\amos\core\helpers\Html::getInputName($model, 'moduleName'), $model->moduleName, ['id' => \open20\amos\core\helpers\Html::getInputId($model, 'moduleName')]) ?>
                         <?= \open20\amos\core\helpers\Html::hiddenInput(\open20\amos\core\helpers\Html::getInputName($model, 'contextModelId'), $model->contextModelId, ['id' => \open20\amos\core\helpers\Html::getInputId($model, 'contextModelId')]) ?>
@@ -154,9 +162,11 @@ $customPrivacyCheck = \Yii::$app->params['layoutConfigurations']['customPlatform
                             </div>
                         <?php endif ?>
 
-                        <div class="recaptcha">
-                            <?= $form->field($model, 'reCaptcha')->widget(ReCaptcha::className())->label('') ?>
-                        </div>
+                        <?php if (!$adminModule->disableRecatchaRegistration) { ?>
+                            <div class="recaptcha">
+                                <?= $form->field($model, 'reCaptcha')->widget(ReCaptcha::className())->label('') ?>
+                            </div>
+                        <?php } ?>
 
                         <?php
                         if ($communityId) { ?>
@@ -171,6 +181,7 @@ $customPrivacyCheck = \Yii::$app->params['layoutConfigurations']['customPlatform
                         <?php }
                         ?>
 
+
                     </div>
                 </div>
                 <div class="d-flex flex-row-reverse justify-content-end">
@@ -180,36 +191,36 @@ $customPrivacyCheck = \Yii::$app->params['layoutConfigurations']['customPlatform
                 </div>
             </div>
             <?php
-            if ($theModule->enableSocial) {
-
-                ?>
-                <div class="mt-5">
-                    <?php if ($socialAuthModule && $socialAuthModule->enableLogin && !$socialMatch) : ?>
-                        <div class="social-block social-register-block mb-5">
-                            <h2 class="title-login">Registrati con i tuoi social</h2>
-                            <?= $this->render('parts' . DIRECTORY_SEPARATOR . 'bi-social', [
-                                'type' => 'register',
-                                'communityId' => $communityId,
-                                'redirectUrl' => $redirectUrl
-                            ]); ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if ($socialProfile) :
-                        echo Html::tag(
-                            'div',
-                            Html::tag(
-                                'p',
-                                Module::t('You are right to register using {provider} account', ['provider' => $socialMatch]),
-                                ['class' => '']
-                            ),
-                            ['class' => 'social-block social-register-block col-xs-12 nop']
-                        );
-                    endif;
-                    ?>
-                </div>
-                <?php
-            }
+//            if ($theModule->enableSocial) {
+//
+//                ?>
+<!--                <div class="mt-5">-->
+<!--                    --><?php //if ($socialAuthModule && $socialAuthModule->enableLogin && !$socialMatch) : ?>
+<!--                        <div class="social-block social-register-block mb-5">-->
+<!--                            <h2 class="title-login">Registrati con i tuoi social</h2>-->
+<!--                            --><?php //echo $this->render('parts' . DIRECTORY_SEPARATOR . 'bi-social', [
+//                                'type' => 'register',
+//                                'communityId' => $communityId,
+//                                'redirectUrl' => $redirectUrl
+//                            ]); ?>
+<!--                        </div>-->
+<!--                    --><?php //endif; ?>
+<!---->
+<!--                    --><?php //if ($socialProfile) :
+//                        echo Html::tag(
+//                            'div',
+//                            Html::tag(
+//                                'p',
+//                                Module::t('You are right to register using {provider} account', ['provider' => $socialMatch]),
+//                                ['class' => '']
+//                            ),
+//                            ['class' => 'social-block social-register-block col-xs-12 nop']
+//                        );
+//                    endif;
+//                    ?>
+<!--                </div>-->
+<!--                --><?php
+//            }
             ?>
         </div>
 

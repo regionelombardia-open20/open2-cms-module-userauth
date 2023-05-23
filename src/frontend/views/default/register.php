@@ -122,12 +122,12 @@ if (!empty($spidData)) {
                 <h2><?= Module::t('Registrati inserendo i tuoi dati') ?></h2>
                 <div class="pt-5">
                     <div class="form-container">
+    
+                        <?= $form->field($model, 'nome')->textInput(['readonly' => (!empty($model->nome))]); ?>
+    
+                        <?= $form->field($model, 'cognome')->textInput(['readonly' => (!empty($model->cognome))]); ?>
 
-                        <?= $form->field($model, 'nome') ?>
-
-                        <?= $form->field($model, 'cognome') ?>
-
-                        <?= $form->field($model, 'email') ?>
+                        <?= $form->field($model, 'email')->textInput(); ?>
 
                         <?php if (!empty($spidData)) {
                             echo Html::hiddenInput('reg_with_spid', 1);
@@ -179,7 +179,12 @@ if (!empty($spidData)) {
                         if ($iuid) { ?>
                             <?= Html::hiddenInput('iuid', $iuid) ?>
                         <?php }
+
                         ?>
+                        <?php if (!empty($spidData)) { ?>
+                            <?= Html::hiddenInput('reg_with_spid', 1) ?>
+                        <?php } ?>
+
 
                     </div>
                 </div>
@@ -193,7 +198,7 @@ if (!empty($spidData)) {
         <div class="<?= ($theModule->enableSPID || $theModule->enableSocial || $theModule->enableAgidLogin) ? 'col-md-5 offset-md-1 pl-md-4' : 'col-12' ?>">
             <?php
             if ($theModule->enableSPID) {
-            ?>
+                ?>
                 <div class="mt-5">
                     <div class="social-block social-register-block mb-5">
                         <?= $this->render(
@@ -226,12 +231,12 @@ if (!empty($spidData)) {
                         ); ?>
                     </div>
                 </div>
-            <?php
+                <?php
             }
             ?>
             <?php
             if ($theModule->enableSocial) {
-            ?>
+                ?>
                 <div class="mt-5">
                     <?php if ($socialAuthModule && $socialAuthModule->enableLogin && !$socialMatch) : ?>
                         <div class="social-block social-register-block mb-5">

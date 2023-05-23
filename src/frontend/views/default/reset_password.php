@@ -20,7 +20,7 @@ $textPwd = 'La password deve contenere almeno: 8 caratteri, lettere maiuscole e 
 
 ?>
 <div class="container py-4 my-5">
-    <div class="row nop">
+    <div class="row">
         <div class="col-md-6 mx-auto">
             <h1 class="h2">Aggiornamento password</h1>
             <p class="mb-5">Compila i seguenti campi per aggiornare la password</p>

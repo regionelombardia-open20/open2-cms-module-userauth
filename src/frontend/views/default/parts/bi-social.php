@@ -39,11 +39,14 @@ if ($socialAuthModule && $socialAuthModule->enableLogin && !$socialMatch) {
         /**'&redirectUrl='.$redirectUrl;*/
     }
 
-
+    $textAccessSocial = Module::t( 'Entra con i social');
+    if (!empty($reconciliation)) {
+        $textAccessSocial = Module::t( 'Riconcilia il tuo profilo con la tua utenza social');
+    }
 ?>
    <div class="mt-5">
    
-    <?= Html::tag('p', ($type == 'login') ? Module::t('Entra con i social') : Module::t('Entra con i social'), ['class' => 'h5 mb-3 border-bottom border-light pb-3']) ?>
+    <?= Html::tag('p', ($type == 'login') ? $textAccessSocial : $textAccessSocial, ['class' => 'h5 mb-3 border-bottom border-light pb-3']) ?>
     <div class="container-login-social mt-3">
         <?php
         foreach ($socialAuthModule->providers as $name => $config) :

@@ -18,6 +18,7 @@ class Module extends BaseModule
     public $enableEmailLogin = false;
     public $enableUserPasswordLogin = true;
     public $enableOverrideSPIDemail = false;
+    public $enableDlSemplificationLight = false;
     public $remember_length = 8600 * 24 * 30;
     public $viewLayout = null;
 
