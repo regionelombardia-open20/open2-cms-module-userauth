@@ -15,6 +15,7 @@ use open20\amos\community\models\Community;
 use open20\amos\core\interfaces\InvitationExternalInterface;
 use open20\amos\core\module\AmosModule;
 use open20\amos\core\user\User;
+use open20\amos\core\utilities\CoreCommonUtility;
 use open20\amos\core\utilities\CurrentUser;
 use open20\amos\invitations\models\Invitation;
 use open20\amos\socialauth\utility\SocialAuthUtility;
@@ -34,7 +35,9 @@ use yii\web\Response;
  */
 class DefaultController extends Controller
 {
-
+    /**
+     * @var Module $module
+     */
     public $module;
     public $adminModule;
 
@@ -104,7 +107,7 @@ class DefaultController extends Controller
                     Yii::$app->session->addFlash('success', 'Utente riconciliato correttamente');
                 }
             } else if ($this->adminModule->enableDlSemplification && !is_null($socialModule) && !CmsUserauthUtility::isAccessPermitted()) {
-                /** @var SocialIdmUser $socialIdmUser */
+                /** @var \open20\amos\socialauth\models\SocialIdmUser $socialIdmUser */
                 $socialIdmUser = $socialModule->findSocialIdmByUserId($model->user->id);
                 if (!is_null($socialIdmUser)) {
                     Yii::$app->user->logout();
@@ -237,13 +240,16 @@ class DefaultController extends Controller
          * If signup is not enabled
          * */
         if (!$this->module->enableRegister) {
-            if (!empty($this->module->textWarningForRegisterDisabled)) {
-                Yii::$app->session->addFlash('warning', AmosAdmin::t('amosadmin', $this->module->textWarningForRegisterDisabled));
+            if (!empty($this->adminModule->textWarningForRegisterDisabled)) {
+                Yii::$app->session->addFlash('warning', AmosAdmin::t('amosadmin', $this->adminModule->textWarningForRegisterDisabled));
             } else {
                 Yii::$app->session->addFlash('danger', AmosAdmin::t('amosadmin', 'Signup Disabled'));
             }
-
-            return $this->goHome();
+            if ($this->module->redirectLinkInRegister) {
+                return $this->redirect($this->module->redirectLinkInRegister);
+            } else {
+                return $this->goHome();
+            }
         }
 
         /**
@@ -315,8 +321,12 @@ class DefaultController extends Controller
             } else {
                 Yii::$app->session->addFlash('danger', AmosAdmin::t('amosadmin', 'Signup Disabled'));
             }
-
-            return $this->goHome();
+    
+            if ($this->module->redirectLinkInRegister) {
+                return $this->redirect($this->module->redirectLinkInRegister);
+            } else {
+                return $this->goHome();
+            }
         }
 
         // Invitation User id

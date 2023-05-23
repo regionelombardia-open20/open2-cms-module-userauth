@@ -23,9 +23,14 @@ class Module extends BaseModule
     public $viewLayout = null;
 
     /**
-     * @var bool
+     * @var bool $precompileUsernameOnFirstAccess
      */
     public $precompileUsernameOnFirstAccess = false;
+
+    /**
+     * @var bool $redirectLinkInRegister
+     */
+    public $redirectLinkInRegister = false;
 
     public static function getModuleName()
     {
