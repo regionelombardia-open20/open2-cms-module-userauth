@@ -46,35 +46,29 @@ $form = ActiveForm::begin([
             ])
             ?>
 
-            <div class="">
-            <?php if (!empty($isFirstAccess) && $isFirstAccess) : ?>
-                <div class="cookie-privacy">
-                <?= Html::a(
-                    AmosAdmin::t('amosadmin', '#cookie_policy_message'),
-                    \Yii::$app->params['linkConfigurations']['cookiePolicyLinkCommon'],
-                    [
-                        'title' => AmosAdmin::t('amosadmin', '#cookie_policy_title'),
-                        'target' => '_blank'
-                    ]
-                )
-                ?>
-
-                <?= Html::tag(
-                    'p',
-                    AmosAdmin::t('amosadmin', '#cookie_policy_content')
-                )
-                ?>
-
-                    <div class="">
-                    <?= $form->field($model, 'privacy')->radioList([
-                        1 => AmosAdmin::t('amosadmin', '#cookie_policy_ok'),
-                        0 => AmosAdmin::t('amosadmin', '#cookie_policy_not_ok')
-                    ])
-                    ?>
-                    </div>
+                <div class="">
+                    <?php if (!empty($isFirstAccess) && $isFirstAccess) : ?>
+                        <div class="cookie-privacy">
+                            <?=
+                                Html::a(
+                                    AmosAdmin::t('amosadmin', '#cookie_policy_message'),
+                                    \Yii::$app->params['linkConfigurations']['cookiePolicyLinkCommon'],
+                                    [
+                                        'title' => AmosAdmin::t('amosadmin', '#cookie_policy_title'),
+                                        'target' => '_blank'
+                                    ]
+                                )
+                            ?>
+                            <?= Html::tag('p', AmosAdmin::t('amosadmin', '#cookie_policy_content')) ?>
+                            <div class="">
+                                <?= $form->field($model, 'privacy')->radioList([
+                                    1 => AmosAdmin::t('amosadmin', '#cookie_policy_ok'),
+                                    0 => AmosAdmin::t('amosadmin', '#cookie_policy_not_ok')
+                                ])->label('Privacy check',['class'=>'control-label sr-only']); ?>
+                            </div>
+                        </div>
+                    <?php endif ?>
                 </div>
-            <?php endif ?>
-            </div>
 
             <?= $form->field($model, 'token')->hiddenInput()->label(false) ?>
 

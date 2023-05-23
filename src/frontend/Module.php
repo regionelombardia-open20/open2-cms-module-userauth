@@ -15,10 +15,15 @@ class Module extends BaseModule
     public $enableSPID = false;
     public $enableSocial = false;
     public $enableAgidLogin = false;
+    public $enablePuaLogin = false;
     public $enableRegister = true;
+    public $enableCredentialRequest = false;
+    public $enableRegisterModuleName = 'organizzazioni';
+    public $enableRegisterContext = false;
     public $enableEmailLogin = false;
     public $enableUserPasswordLogin = true;
     public $hideResetPasswordLogin = false;
+    public $showLoginStandardUnderVpn = false;
     public $enableOverrideSPIDemail = false;
     public $enableDlSemplificationLight = false;
     public $viewLayout = null;
@@ -36,6 +41,11 @@ class Module extends BaseModule
      */
     public $redirectLinkInRegister = false;
 
+    /**
+     * @var bool $preventAdminLogin
+     */
+    public $preventAdminLogin = false;
+
     public static function getModuleName()
     {
         return static::$moduleName;
@@ -44,6 +54,12 @@ class Module extends BaseModule
     public static function setModuleName($name)
     {
         static::$moduleName = $name;
+    }
+
+
+    public function init()
+    {
+        parent::init();
     }
 
     /**

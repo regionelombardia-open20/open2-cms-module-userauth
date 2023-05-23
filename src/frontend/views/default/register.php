@@ -195,7 +195,7 @@ if (!empty($spidData)) {
                 </div>
             </div>
         </div>
-        <div class="<?= ($theModule->enableSPID || $theModule->enableSocial || $theModule->enableAgidLogin) ? 'col-md-5 offset-md-1 pl-md-4' : 'col-12' ?>">
+        <div class="<?= ($theModule->enableSPID || $theModule->enableSocial || $theModule->enableAgidLogin || $theModule->enablePuaLogin) ? 'col-md-5 offset-md-1 pl-md-4' : 'col-12' ?>">
             <?php
             if ($theModule->enableSPID) {
                 ?>
@@ -222,6 +222,25 @@ if (!empty($spidData)) {
                     <div class="social-block social-register-block mb-5">
                         <?= $this->render(
                             'parts' . DIRECTORY_SEPARATOR . 'bi-idpc',
+                            [
+                                'currentAsset' => $currentAsset,
+                                'hideIdpcButtonInfo' => $hideIdpcAgidButtonInfo,
+                                'hideIdpcButtonTitle' => $hideIdpcAgidButtonTitle,
+                                'hideIdpcButtonSubtitle' => $hideIdpcAgidButtonSubtitle
+                            ]
+                        ); ?>
+                    </div>
+                </div>
+                <?php
+            }
+            ?>
+            <?php
+            if ($theModule->enablePuaLogin) {
+            ?>
+                <div class="mt-5">
+                    <div class="social-block social-register-block mb-5">
+                        <?= $this->render(
+                            'parts' . DIRECTORY_SEPARATOR . 'bi-pua',
                             [
                                 'currentAsset' => $currentAsset,
                                 'hideIdpcButtonInfo' => $hideIdpcAgidButtonInfo,

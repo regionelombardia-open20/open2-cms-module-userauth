@@ -2,7 +2,6 @@
 
 use amos\userauth\frontend\Module;
 use open20\amos\admin\AmosAdmin;
-use open20\amos\core\utilities\CoreCommonUtility;
 use luya\helpers\Html;
 use open20\design\assets\BootstrapItaliaDesignAsset;
 use open20\design\components\bootstrapitalia\ActiveForm;
@@ -19,6 +18,12 @@ $language_code = Yii::$app->composition['langShortCode'];
 /** @var AmosAdmin $adminModule */
 $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
 ?>
+
+    <div class="container py-4 my-5">
+        <div class="row nop">
+            <div class="col-md-6 mx-auto">
+                <h1 class="h5"><?= Module::t('Accedi a ').\Yii::$app->name ?></h1>
+                <p class="mb-0"><?= Module::t('Accedi con username e password.') ?></p>
 
 <?php if (!$showLiteMode) : ?>
     <?php
@@ -45,7 +50,6 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
             <p class="mb-5"></p>
         <?php endif; ?>
 
-        <?php if ($theModule && $theModule->enableUserPasswordLogin) : ?>
             <?=
             $form->field($model, 'username')->textInput([
                 'label' => Module::t('Indirizzo email')
@@ -53,21 +57,22 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
             ?>
             <?= $form->field($model, 'password')->passwordInput(); ?>
 
-        <div class="d-md-flex flex-wrap">
-            <?php if (!$theModule->hideResetPasswordLogin) : ?>
+            <div class="d-md-flex flex-wrap">
                 <div class="mt-2 order-md-2 mr-auto mr-md-0">
                     <p class="mb-0"><a href="<?= '/' . $language_code . $forgotPwdUrl ?>" title="<?= Module::t('Inizia la procedura di recupero password') ?>"><?= Module::t('Hai dimenticato la password?') ?></a></p>
                 </div>
-            <?php endif; ?>
-            <div class="order-md-1 mr-md-auto">
-                <div class="form-check">
-                    <?= $form->field($model, 'rememberme')->checkbox([
-                        'value' => 1,
-                        'id' => 'userloginform-rememberme-id'
-                    ])->label('Ricordami') ?>
+                <div class="order-md-1 mr-md-auto">
+                    <div class="form-check">
+                        <?=
+                        $form->field($model, 'rememberme')->checkbox([
+                            'value' => 1,
+                            'id' => 'userloginform-rememberme-id'
+                        ])->label('Ricordami')
+                        ?>
+                    </div>
                 </div>
+
             </div>
-        </div>
 
             <?=
             Html::submitButton(
@@ -75,9 +80,6 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
                     ['class' => 'btn btn-primary px-5']
             );
             ?>
-            <?php
-        endif;
-        ?>
 
     </div>
 
@@ -125,65 +127,6 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
 
 <?php endif ?>
 
-<?php if ($theModule && $theModule->enableUserPasswordLogin && $theModule->enableSPID) : ?>
-    <hr class="mb-5">
-<?php endif; ?>
-
-<?php
-if ($theModule->enableSPID) {
-    echo $this->render(
-            'parts' . DIRECTORY_SEPARATOR . 'bi-idpc',
-            [
-                'currentAsset' => $currentAsset,
-                'hideIdpcButtonInfo' => $hideIdpcButtonInfo,
-                'hideIdpcButtonTitle' => $hideIdpcButtonTitle,
-                'hideIdpcButtonSubtitle' => $hideIdpcButtonSubtitle
-            ]
-    );
-}
-?>
-
-<?php if ($theModule && $theModule->enableUserPasswordLogin && ($theModule->enableAgidLogin || $theModule->enablePuaLogin)) : ?>
-    <hr class="mb-5">
-<?php endif; ?>
-
-<?php
-if ($theModule->enableAgidLogin) {
-    echo $this->render(
-            'parts' . DIRECTORY_SEPARATOR . 'bi-idpc-agid',
-            [
-                'currentAsset' => $currentAsset,
-                'hideIdpcButtonInfo' => $hideIdpcAgidButtonInfo,
-                'hideIdpcButtonTitle' => $hideIdpcAgidButtonTitle,
-                'hideIdpcButtonSubtitle' => $hideIdpcAgidButtonSubtitle
-            ]
-    );
-}
-?>
-<?php
-if ($theModule->enablePuaLogin) {
-    echo $this->render(
-            'parts' . DIRECTORY_SEPARATOR . 'bi-idpc-pua',
-            [
-                'currentAsset' => $currentAsset,
-                'hideIdpcButtonInfo' => $hideIdpcAgidButtonInfo,
-                'hideIdpcButtonTitle' => $hideIdpcAgidButtonTitle,
-                'hideIdpcButtonSubtitle' => $hideIdpcAgidButtonSubtitle
-            ]
-    );
-}
-?>
-
-<hr class="mb-5">
-<?php
-    echo $this->render(
-        'parts' . DIRECTORY_SEPARATOR . 'bi-idpc-credentialrequest',
-        [
-            'currentAsset' => $currentAsset,
-        ]
-    );
-?>
-
 <?php if ($theModule && $theModule->enableUserPasswordLogin && ($theModule->enableAgidLogin || $theModule->enablePuaLogin)) : ?>
     <hr class="mb-5">
 <?php endif; ?>
@@ -200,3 +143,7 @@ if ($theModule->enableSocial) {
     );
 }
 ?>
+
+            </div>
+        </div>
+    </div>

@@ -6,6 +6,8 @@ use amos\userauth\frontend\Module;
 use open20\amos\core\helpers\Html;
 use open20\amos\core\user\User;
 use open20\amos\core\models\AmosModel;
+use yii\base\Model;
+use Yii;
 
 
 class UserLoginForm extends AmosModel
@@ -33,6 +35,7 @@ class UserLoginForm extends AmosModel
     public function init()
     {
         parent::init();
+        $this->rememberme = true;
 
         $this->on(self::EVENT_AFTER_VALIDATE, [$this, 'validateUser']);
     }
@@ -117,6 +120,10 @@ class UserLoginForm extends AmosModel
         $ret = false;
         if (!$this->hasErrors()) {
             $user = $this->getUser();
+            $userauthModule = Yii::$app->getModule('userauthfrontend');
+            if($userauthModule && $userauthModule->preventAdminLogin){
+                if($user->username == 'admin') {return false;} // admin non può loggare normalmente
+            }
             if ($user && !empty($user->password_hash) && $user->validatePassword($this->password)) {
                 $ret = true;
             }

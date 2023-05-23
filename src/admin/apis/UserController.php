@@ -15,6 +15,6 @@ class UserController extends Api
     /**
      * @var string The path to the model which is the provider for the rules and fields.
      */
-    public $modelClass = User::className;
+    public $modelClass = User::class;
 
 }
