@@ -13,6 +13,7 @@ class Module extends BaseModule
     private static $moduleName = 'userauthfrontend';
     public $enableSPID   = false;
     public $enableSocial = false;
+    public $enableAgidLogin = false;
     public $enableRegister = true;
     public $enableEmailLogin = false;
     public $enableUserPasswordLogin = true;

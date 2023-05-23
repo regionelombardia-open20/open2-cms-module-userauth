@@ -129,9 +129,9 @@ if (!empty($spidData)) {
 
                         <?= $form->field($model, 'email') ?>
 
-                        <?php if(!empty($spidData)){
+                        <?php if (!empty($spidData)) {
                             echo Html::hiddenInput('reg_with_spid', 1);
-                        }?>
+                        } ?>
 
 
                         <?= \open20\amos\core\helpers\Html::hiddenInput(\open20\amos\core\helpers\Html::getInputName($model, 'moduleName'), $model->moduleName, ['id' => \open20\amos\core\helpers\Html::getInputId($model, 'moduleName')]) ?>
@@ -151,7 +151,7 @@ if (!empty($spidData)) {
                             <div class="privacy-policy">
                                 <?= Html::a(
                                     Module::t('#cookie_policy_message') .
-                                    '<svg class="icon icon-xs ml-2"><use xlink:href="' . $currentAsset->baseUrl . '/sprite/material-sprite.svg#open-in-new"></use></svg>',
+                                        '<svg class="icon icon-xs ml-2"><use xlink:href="' . $currentAsset->baseUrl . '/sprite/material-sprite.svg#open-in-new"></use></svg>',
                                     $privacyLink,
                                     [
                                         'title' => Module::t('#cookie_policy_title'),
@@ -190,7 +190,7 @@ if (!empty($spidData)) {
                 </div>
             </div>
         </div>
-        <div class="<?= ($theModule->enableSPID || $theModule->enableSocial) ? 'col-md-5 offset-md-1 pl-md-4' : 'col-12' ?>">
+        <div class="<?= ($theModule->enableSPID || $theModule->enableSocial || $theModule->enableAgidLogin) ? 'col-md-5 offset-md-1 pl-md-4' : 'col-12' ?>">
             <?php
             if ($theModule->enableSPID) {
             ?>
@@ -200,9 +200,28 @@ if (!empty($spidData)) {
                             'parts' . DIRECTORY_SEPARATOR . 'bi-idpc',
                             [
                                 'currentAsset' => $currentAsset,
-                                'hideSpidButtonDescription' => $hideSpidButtonDescription,
                                 'hideIdpcButtonInfo' => $hideIdpcButtonInfo,
-
+                                'hideIdpcButtonTitle' => $hideIdpcButtonTitle,
+                                'hideIdpcButtonSubtitle' => $hideIdpcButtonSubtitle
+                            ]
+                        ); ?>
+                    </div>
+                </div>
+            <?php
+            }
+            ?>
+            <?php
+            if ($theModule->enableAgidLogin) {
+            ?>
+                <div class="mt-5">
+                    <div class="social-block social-register-block mb-5">
+                        <?= $this->render(
+                            'parts' . DIRECTORY_SEPARATOR . 'bi-idpc',
+                            [
+                                'currentAsset' => $currentAsset,
+                                'hideIdpcButtonInfo' => $hideIdpcAgidButtonInfo,
+                                'hideIdpcButtonTitle' => $hideIdpcAgidButtonTitle,
+                                'hideIdpcButtonSubtitle' => $hideIdpcAgidButtonSubtitle
                             ]
                         ); ?>
                     </div>
@@ -237,7 +256,7 @@ if (!empty($spidData)) {
                     endif;
                     ?>
                 </div>
-                <?php
+            <?php
             }
             ?>
         </div>
@@ -259,15 +278,15 @@ if (!empty($spidData)) {
                     echo Html::tag(
                         'div',
                         Html::a(Module::t('#cookie_policy_message'), '/site/privacy', ['title' => Module::t('#cookie_policy_title'), 'target' => '_blank']) .
-                        Html::tag('p', Module::t('#cookie_policy_content')) .
-                        Html::radioList('privacy', null, [Module::t('#cookie_policy_ok'), Module::t('#cookie_policy_not_ok')], ['class' => 'radio radio-privacy']),
+                            Html::tag('p', Module::t('#cookie_policy_content')) .
+                            Html::radioList('privacy', null, [Module::t('#cookie_policy_ok'), Module::t('#cookie_policy_not_ok')], ['class' => 'radio radio-privacy']),
                         ['class' => 'text-bottom']
                     );
 
                     echo Html::tag(
                         'div',
                         Html::submitButton(Module::t('#register_now'), ['class' => 'btn btn-primary btn-administration-primary pull-right', 'id' => 'confirm-privacy-button', 'title' => Module::t('#register_now')]) .
-                        Html::a(Module::t('#go_to_login'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-outline-primary pull-left', 'title' => Module::t('#go_to_login_title'), 'target' => '_self'])
+                            Html::a(Module::t('#go_to_login'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-outline-primary pull-left', 'title' => Module::t('#go_to_login_title'), 'target' => '_self'])
                     );
                     ?>
                 </div>

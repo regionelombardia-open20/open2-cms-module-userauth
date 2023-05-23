@@ -27,7 +27,7 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
                 'class' => 'userauth-login-form needs-validation form-rounded',
                 'autocomplete' => 'off'
             ]
-        ] 
+        ]
     );
     ?>
     <?php if ($theModule && $theModule->enableUserPasswordLogin) : ?>
@@ -50,7 +50,7 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
                     ])->label('Ricordami') ?>
                 </div>
             </div>
-            
+
         </div>
 
         <?= Html::submitButton(
@@ -98,8 +98,8 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
 
 <?php endif ?>
 
-<?php if ($theModule && $theModule->enableUserPasswordLogin && ($theModule->enableSPID || $theModule->enableSocial)) : ?>
-<hr class="mb-5">
+<?php if ($theModule && $theModule->enableUserPasswordLogin && $theModule->enableSPID ) : ?>
+    <hr class="mb-5">
 <?php endif; ?>
 
 <?php
@@ -108,13 +108,35 @@ if ($theModule->enableSPID) {
         'parts' . DIRECTORY_SEPARATOR . 'bi-idpc',
         [
             'currentAsset' => $currentAsset,
-            'hideSpidButtonDescription' => $hideSpidButtonDescription,
             'hideIdpcButtonInfo' => $hideIdpcButtonInfo,
-
+            'hideIdpcButtonTitle' => $hideIdpcButtonTitle,
+            'hideIdpcButtonSubtitle' => $hideIdpcButtonSubtitle
         ]
     );
 }
 ?>
+
+<?php if ($theModule && $theModule->enableUserPasswordLogin && $theModule->enableAgidLogin) : ?>
+    <hr class="mb-5">
+<?php endif; ?>
+
+<?php
+if ($theModule->enableAgidLogin) {
+    echo $this->render(
+        'parts' . DIRECTORY_SEPARATOR . 'bi-idpc-agid',
+        [
+            'currentAsset' => $currentAsset,
+            'hideIdpcButtonInfo' => $hideIdpcAgidButtonInfo,
+            'hideIdpcButtonTitle' => $hideIdpcAgidButtonTitle,
+            'hideIdpcButtonSubtitle' => $hideIdpcAgidButtonSubtitle
+        ]
+    );
+}
+?>
+
+<?php if ($theModule && $theModule->enableUserPasswordLogin && $theModule->enableAgidLogin) : ?>
+    <hr class="mb-5">
+<?php endif; ?>
 
 <?php
 if ($theModule->enableSocial) {

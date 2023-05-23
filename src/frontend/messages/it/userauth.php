@@ -15,7 +15,7 @@ return [
     'Inizia la procedura di recupero password' => 'Inizia la procedura di recupero password',
     'Indirizzo email' => 'Indirizzo email',
     'Accedi' => 'Accedi',
-    'Hai dimenticato la password?' => 'Hai dimenticato la password?',
+    'Hai dimenticato la password?' => 'Hai dimenticato la password? / Richiedi nuova password',
     '#forgot_password_broken_link_message' => 'In caso di problemi con il precedente link copia il seguente indirizzo ed incollalo nella barra indirizzo del tuo browser',
     '#forgot_password_closing_message' => 'Se non hai inviato tu questa richiesta, puoi ignorare questa email.<br>La password non sarà modificata se non clicchi sul link e continui la procedura',
     '#forgot_password_expire_message' => 'Hai {passwordResetTokenExpire} per reimpostare la tua password ',

@@ -15,7 +15,7 @@ return [
     'Inizia la procedura di recupero password' => 'Start the password recovery procedure',
     'Indirizzo email' => 'Email address',
     'Accedi' => 'Sign in',
-    'Hai dimenticato la password?' => 'Did you forget your password?',
+    'Hai dimenticato la password?' => 'Did you forget your password? / Request new password',
     '#forgot_password_broken_link_message' => 'If you can\'t click on the previous link, copy it and paste it in your browser',
     '#forgot_password_closing_message' => 'If you haven\'t request this email, you can ignore it.<br>Your password won\'t change if you don\'t click on the link and complete the password change form',
     '#forgot_password_expire_message' => 'You have {passwordResetTokenExpire} to reset your password ',

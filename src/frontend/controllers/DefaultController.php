@@ -113,9 +113,7 @@ class DefaultController extends Controller {
                 'loginUrl' => $loginUrl,
                 'forgotPwdUrl' => $forgotPwdUrl,
                 'showLiteMode' => \Yii::$app->params['layoutConfigurations']['showLiteModeLogin'],
-                //'hideSpidButtonDescription' => \Yii::$app->params['layoutConfigurations']['hideSpidDescriptionLogin'],
                 'hideIdpcButtonInfo' => \Yii::$app->params['layoutConfigurations']['hideIdpcButtonInfo'],
-
             ]
         );
     }
