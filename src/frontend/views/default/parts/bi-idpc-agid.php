@@ -26,7 +26,7 @@ $socialAuthModule = Yii::$app->getModule('socialauth');
   <?php if (!$hideIdpcAgidButtonInfo) : ?>
     <div class="border-bottom border-light pb-3 mb-4">
       <?php if (!$hideIdpcAgidButtonTitle) : ?>
-        <h3 class="h5"><?= Module::t('Accedi con idPC AGID') ?></h3>
+        <p class="h5"><?= Module::t('Accedi con idPC AGID') ?></p>
       <?php endif ?>
       <?php if (!$hideIdpcAgidButtonSubtitle) : ?>
         <p class="mb-0"><?= Module::t('Sistema di Identity Provider di AGID') ?></p>
