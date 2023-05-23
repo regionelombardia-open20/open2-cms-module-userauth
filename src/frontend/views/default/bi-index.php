@@ -27,7 +27,7 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
                 'class' => 'userauth-login-form needs-validation form-rounded',
                 'autocomplete' => 'off'
             ]
-        ]
+        ] 
     );
     ?>
     <?php if ($theModule && $theModule->enableUserPasswordLogin) : ?>
@@ -98,8 +98,10 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
 
 <?php endif ?>
 
+<?php if ($theModule && $theModule->enableUserPasswordLogin && ($theModule->enableSPID || $theModule->enableSocial)) : ?>
+<hr class="mb-5">
+<?php endif; ?>
 
-<hr>
 <?php
 if ($theModule->enableSPID) {
     echo $this->render(

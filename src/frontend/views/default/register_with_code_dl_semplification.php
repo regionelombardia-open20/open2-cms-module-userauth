@@ -10,6 +10,7 @@
  */
 
 use amos\userauth\frontend\Module;
+use open20\amos\admin\AmosAdmin;
 use himiklab\yii2\recaptcha\ReCaptcha;
 use luya\helpers\Html;
 use open20\design\assets\BootstrapItaliaDesignAsset;
@@ -94,25 +95,12 @@ $redirectUrl = Yii::$app->request->get('redirectUrl');
 $privacyLink = \Yii::$app->params['linkConfigurations']['privacyPolicyLinkCommon'];
 $customPrivacyCheck = \Yii::$app->params['layoutConfigurations']['customPlatformPrivacyCheck'];
 
-$spidData = \Yii::$app->session->get('IDM');
-if (!empty($spidData)) {
-    if (!empty($spidData['nome'])) {
-        $nomeReadonly = true;
-    }
-    if (!empty($spidData['cognome'])) {
-        $cognomeReadonly = true;
-    }
-    if (!empty($spidData['codiceFiscale'])) {
-        $codiceFiscale = $spidData['codiceFiscale'];
-    }
-}
-
 ?>
 
 <div class="container py-5">
 
-    <div class="register-page row">
-        <div class="<?= ($theModule->enableSPID || $theModule->enableSocial) ? 'col-md-6 pr-md-4' : 'col-12' ?>">
+    <div class="register-page">
+        <div>
             <?php $form = ActiveForm::begin([
                 'id' => 'register-form',
                 'options' => [
@@ -125,19 +113,15 @@ if (!empty($spidData)) {
                 <div class="pt-5">
                     <div class="form-container">
 
-                        <?= $form->field($model, 'nome') ?>
+                        <?= $form->field($model, 'nome')->textInput(['readonly' => (!empty($model->nome))]) ?>
 
-                        <?= $form->field($model, 'cognome') ?>
+                        <?= $form->field($model, 'cognome')->textInput(['readonly' => (!empty($model->cognome))]) ?>
 
                         <?= $form->field($model, 'email') ?>
 
-                        <?php if(!empty($spidData)){
-                            echo Html::hiddenInput('reg_with_spid', 1);
-                        }?>
+                        <?= Html::hiddenInput(Html::getInputName($model, 'moduleName'), $model->moduleName, ['id' => Html::getInputId($model, 'moduleName')]) ?>
 
-
-                        <?= \open20\amos\core\helpers\Html::hiddenInput(\open20\amos\core\helpers\Html::getInputName($model, 'moduleName'), $model->moduleName, ['id' => \open20\amos\core\helpers\Html::getInputId($model, 'moduleName')]) ?>
-                        <?= \open20\amos\core\helpers\Html::hiddenInput(\open20\amos\core\helpers\Html::getInputName($model, 'contextModelId'), $model->contextModelId, ['id' => \open20\amos\core\helpers\Html::getInputId($model, 'contextModelId')]) ?>
+                        <?= $form->field($model, 'contextModelId') ?>
 
                         <?php if ($customPrivacyCheck) : ?>
                             <?php
@@ -191,33 +175,14 @@ if (!empty($spidData)) {
                     <?= Html::a(Module::t('Annulla'), [$loginUrl], ['class' => 'btn btn-outline-primary', 'title' => Module::t('#go_to_login_title'), 'target' => '_self']) ?>
                 </div>
             </div>
-        </div>
-        <div class="<?= ($theModule->enableSPID || $theModule->enableSocial) ? 'col-md-5 offset-md-1 pl-md-4' : 'col-12' ?>">
-            <?php
-            if ($theModule->enableSPID) {
-            ?>
-                <div class="mt-5">
-                    <div class="social-block social-register-block mb-5">
-                        <?= $this->render(
-                            'parts' . DIRECTORY_SEPARATOR . 'bi-idpc',
-                            [
-                                'currentAsset' => $currentAsset,
-                                'hideSpidButtonDescription' => $hideSpidButtonDescription,
-                                'hideIdpcButtonInfo' => $hideIdpcButtonInfo,
-
-                            ]
-                        ); ?>
-                    </div>
-                </div>
-            <?php
-            }
-            ?>
             <?php
             if ($theModule->enableSocial) {
-            ?>
+
+                ?>
                 <div class="mt-5">
                     <?php if ($socialAuthModule && $socialAuthModule->enableLogin && !$socialMatch) : ?>
                         <div class="social-block social-register-block mb-5">
+                            <h2 class="title-login">Registrati con i tuoi social</h2>
                             <?= $this->render('parts' . DIRECTORY_SEPARATOR . 'bi-social', [
                                 'type' => 'register',
                                 'communityId' => $communityId,

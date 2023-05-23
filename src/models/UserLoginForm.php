@@ -3,6 +3,7 @@
 namespace amos\userauth\models;
 
 use amos\userauth\frontend\Module;
+use open20\amos\core\helpers\Html;
 use open20\amos\core\user\User;
 use yii\base\Model;
 
@@ -50,11 +51,23 @@ class UserLoginForm extends Model
 
     /**
      * @inheritdoc
+     * if enableEmailLogin is true, the username has to be an email. admin account escluded by this rule
      */
     public function rules()
     {
+        /** @var Module $userAuthModule */
+        $userAuthModule = Module::instance();
         return [
             [['username', 'password'], 'required'],
+            [['username'], 'email', 'when' => function ($model) use ($userAuthModule) {
+
+                if ($model->username != 'admin' && $userAuthModule->enableEmailLogin) {
+                    return true;
+                }
+                return false;
+            }, 'whenClient' => "function (attribute, value) {
+                return ($('#" . Html::getInputId($this, 'username') . "').val() != 'admin' && " . ($userAuthModule->enableEmailLogin ? "true" : "false") . ");
+            }"],
             [['rememberme'], 'safe']
         ];
     }
@@ -167,12 +180,22 @@ class UserLoginForm extends Model
 
     /**
      * Finds user by username or email
-     *
+     * if enableEmailLogin is true, find only by email, admin account excluded
      * @param string $usernameOrEmail
      * @return static|null
      */
     public static function findByUsernameOrEmail($usernameOrEmail)
     {
+        /** @var Module $userAuthModule */
+        $userAuthModule = Module::instance();
+        
+        if ($userAuthModule->enableEmailLogin) {
+            if($usernameOrEmail == 'admin'){
+                return self::findByUsername($usernameOrEmail);
+            }
+            return self::findByEmail($usernameOrEmail);
+        }
+        
         $user = self::findByUsername($usernameOrEmail);
         if (is_null($user)) {
             $user = self::findByEmail($usernameOrEmail);

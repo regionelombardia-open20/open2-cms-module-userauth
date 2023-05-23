@@ -14,10 +14,11 @@ class Module extends BaseModule
     public $enableSPID   = false;
     public $enableSocial = false;
     public $enableRegister = true;
+    public $enableEmailLogin = false;
     public $enableUserPasswordLogin = true;
     public $remember_length = 8600 * 24 * 30;
     public $viewLayout = null;
-    
+     
     /**
      * @var bool
      */

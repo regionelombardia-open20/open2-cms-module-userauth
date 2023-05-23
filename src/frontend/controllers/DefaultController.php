@@ -3,18 +3,18 @@
 namespace amos\userauth\frontend\controllers;
 
 use amos\userauth\frontend\Module;
+use amos\userauth\models\FirstAccessForm;
 use amos\userauth\models\UserLoginForm;
 use open20\amos\admin\AmosAdmin;
 use open20\amos\admin\models\ForgotPasswordForm;
+use open20\amos\admin\models\RegisterForm;
 use open20\amos\admin\models\UserProfile;
 use open20\amos\admin\utility\UserProfileUtility;
 use open20\amos\community\models\Community;
-use open20\amos\community\models\RegisterForm;
 use open20\amos\core\interfaces\InvitationExternalInterface;
 use open20\amos\core\module\AmosModule;
-use open20\amos\core\utilities\CurrentUser;
 use open20\amos\core\user\User;
-use amos\userauth\models\FirstAccessForm;
+use open20\amos\core\utilities\CurrentUser;
 use luya\cms\menu\QueryOperatorFieldInterface;
 use luya\Config;
 use luya\helpers\Url;
@@ -24,6 +24,10 @@ use yii\filters\HttpCache;
 use yii\helpers\Html;
 use yii\web\Response;
 
+/**
+ * Class DefaultController
+ * @package amos\userauth\frontend\controllers
+ */
 class DefaultController extends Controller {
 
     public $module;
@@ -65,13 +69,14 @@ class DefaultController extends Controller {
         }
 
         $model = new UserLoginForm();
-        $model->adminModule = $this->adminModule; 
+        $model->adminModule = $this->adminModule;
+
+        $this->beforeUserLogin($model);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && Yii::$app->user->login($model->user, $model->rememberme ? $this->module->remember_length : 0)) {
-            if(\Yii::$app instanceof \open20\amos\core\applications\CmsApplication)
-            {
+            $this->afterUserLogin($model);
+            if (\Yii::$app instanceof \open20\amos\core\applications\CmsApplication) {
                 \Yii::$app->session->set('access_token', \Yii::$app->getUser()->identity->getAccessToken());
-                
             }
             $to_go = null;
             if (!empty($redir)) {
@@ -102,18 +107,32 @@ class DefaultController extends Controller {
 
 
         return $this->render(
-                        'bi-index',
-                        [
-                            'model' => $model,
-                            'registrationUrl' => $registrationUrl,
-                            'loginUrl' => $loginUrl,
-                            'forgotPwdUrl' => $forgotPwdUrl,
-                            'showLiteMode' => \Yii::$app->params['layoutConfigurations']['showLiteModeLogin'],
-                            //'hideSpidButtonDescription' => \Yii::$app->params['layoutConfigurations']['hideSpidDescriptionLogin'],
-                            'hideIdpcButtonInfo' => \Yii::$app->params['layoutConfigurations']['hideIdpcButtonInfo'],
-                            
-                        ]
+            'bi-index',
+            [
+                'model' => $model,
+                'registrationUrl' => $registrationUrl,
+                'loginUrl' => $loginUrl,
+                'forgotPwdUrl' => $forgotPwdUrl,
+                'showLiteMode' => \Yii::$app->params['layoutConfigurations']['showLiteModeLogin'],
+                //'hideSpidButtonDescription' => \Yii::$app->params['layoutConfigurations']['hideSpidDescriptionLogin'],
+                'hideIdpcButtonInfo' => \Yii::$app->params['layoutConfigurations']['hideIdpcButtonInfo'],
+
+            ]
         );
+    }
+
+    /**
+     * Operations
+     * @param $model
+     */
+    protected function beforeUserLogin($model)
+    {
+
+    }
+
+    protected function afterUserLogin($model)
+    {
+
     }
 
     /**
@@ -143,10 +162,28 @@ class DefaultController extends Controller {
     }
 
     /**
-     * @return bool|Response
+     * @return bool|\yii\web\Response
      */
-    public function actionRegister() {
+    public function actionRegister()
+    {
+        return $this->register();
+    }
 
+    /**
+     * @return bool|\yii\web\Response
+     */
+    public function actionRegisterWithCode()
+    {
+        return $this->register('register_with_code');
+    }
+
+    /**
+     * @param string $registerView
+     * @return string|Response
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function register($registerView = 'register')
+    {
         $this->setActionLayout();
 
         if (!CurrentUser::isPlatformGuest()) {
@@ -160,12 +197,9 @@ class DefaultController extends Controller {
          * */
         if (!$this->module->enableRegister) {
             if (!empty($this->module->textWarningForRegisterDisabled)) {
-                Yii::$app->session->addFlash('warning',
-                        AmosAdmin::t('amosadmin',
-                                $this->module->textWarningForRegisterDisabled));
+                Yii::$app->session->addFlash('warning', AmosAdmin::t('amosadmin', $this->module->textWarningForRegisterDisabled));
             } else {
-                Yii::$app->session->addFlash('danger',
-                        AmosAdmin::t('amosadmin', 'Signup Disabled'));
+                Yii::$app->session->addFlash('danger', AmosAdmin::t('amosadmin', 'Signup Disabled'));
             }
 
             return $this->goHome();
@@ -191,6 +225,8 @@ class DefaultController extends Controller {
         // Pre-compile with SPID session data
         $spidData = \Yii::$app->session->get('IDM');
 
+        $socialAccount = false;
+
         if (!empty($getParams['name']) && !empty($getParams['surname']) && !empty($getParams['email'])) {
             $model->nome = $getParams['name'];
             $model->cognome = $getParams['surname'];
@@ -199,10 +235,28 @@ class DefaultController extends Controller {
             $model->nome = $socialProfile->firstName;
             $model->cognome = $socialProfile->lastName;
             $model->email = $socialProfile->email;
-        } elseif ($spidData && $spidData['emailAddress']) {
+            $socialAccount  = true;
+        } elseif (!empty($spidData)) {
             $model->nome = $spidData['nome'];
             $model->cognome = $spidData['cognome'];
             $model->email = $spidData['emailAddress'];
+            $socialAccount  = true;
+        }
+
+        // Used for external invitation registrations
+        if (!empty($getParams['moduleName']) && !empty($getParams['contextModelId'])) {
+            $model->moduleName = $getParams['moduleName'];
+            $model->contextModelId = $getParams['contextModelId'];
+        }
+
+        if ($this->adminModule->enableDlSemplification && !$spidData) {
+            if (!empty($this->adminModule->textWarningForRegisterDisabled)) {
+                Yii::$app->session->addFlash('warning', AmosAdmin::t('amosadmin', $this->adminModule->textWarningForRegisterDisabled));
+            } else {
+                Yii::$app->session->addFlash('danger', AmosAdmin::t('amosadmin', 'Signup Disabled'));
+            }
+
+            return $this->goHome();
         }
 
         // Invitation User id
@@ -224,9 +278,7 @@ class DefaultController extends Controller {
             if (!$newUser || isset($newUser['error'])) {
                 $result_message = [];
                 $errorMail = ($model->email ? $model->email : '');
-                array_push($result_message,
-                        AmosAdmin::t('amosadmin', '#error_register_user',
-                                ['errorMail' => $errorMail]));
+                array_push($result_message, AmosAdmin::t('amosadmin', '#error_register_user', ['errorMail' => $errorMail]));
 
                 return $this->render('security-message',
                                 [
@@ -255,13 +307,11 @@ class DefaultController extends Controller {
                 //Yii::$app->session->addFlash('danger', AmosAdmin::t('amosadmin', 'Error when loading profile data, try again'));
 
                 return $this->render('security-message',
-                                [
-                                    'title_message' => AmosAdmin::t('amosadmin',
-                                            'Errore'),
-                                    'result_message' => AmosAdmin::t('amosadmin',
-                                            'Error when loading profile data, try again'),
-                                    'go_to_login_url' => Url::current()
-                ]);
+                    [
+                        'title_message' => AmosAdmin::t('amosadmin', 'Errore'),
+                        'result_message' => AmosAdmin::t('amosadmin', 'Error when loading profile data, try again'),
+                        'go_to_login_url' => Url::current()
+                    ]);
 
                 //return $this->goHome();
             }
@@ -290,50 +340,51 @@ class DefaultController extends Controller {
                 $community = Community::findOne($communityId);
             }
 
-            if (!empty($getParams['moduleName']) && !empty($getParams['contextModelId'])) {
+            if (!empty($model->moduleName) && !empty($model->contextModelId)) {
                 /** @var AmosModule $module */
-                $module = Yii::$app->getModule($getParams['moduleName']);
+                $module = Yii::$app->getModule($model->moduleName);
                 if (!is_null($module) && ($module instanceof InvitationExternalInterface)) {
-                    $okUserContextAssociation = $module->addUserContextAssociation($userId,
-                            $getParams['contextModelId']);
+                    $this->beforeAddUserContextAssociation($model, $newUserProfile);
+                    $okUserContextAssociation = $module->addUserContextAssociation($userId, $model->contextModelId);
+                    $this->afterAddUserContextAssociation($model, $newUserProfile, $okUserContextAssociation);
                     if (!$okUserContextAssociation) {
-                        Yii::$app->getSession()->addFlash('danger',
-                                AmosAdmin::t('amosadmin',
-                                        '#user_context_association_error'));
+                        Yii::$app->getSession()->addFlash('danger', AmosAdmin::t('amosadmin', '#user_context_association_error'));
                     }
                 }
             }
 
-            $sent = UserProfileUtility::sendCredentialsMail($newUserProfile,
-                            $community);
+            $sent = UserProfileUtility::sendCredentialsMail($newUserProfile, $community, null, $socialAccount);
 
             if (!$sent) {
                 return $this->render('security-message',
-                                [
-                                    'title_message' => AmosAdmin::t('amosadmin',
-                                            '#error'),
-                                    'result_message' => AmosAdmin::t('amosadmin',
-                                            '#error_send_register_mail')
-                ]);
+                    [
+                        'title_message' => AmosAdmin::t('amosadmin', '#error'),
+                        'result_message' => AmosAdmin::t('amosadmin', '#error_send_register_mail')
+                    ]);
             } else {
                 // Sent notification email to invitation user
                 if ($iuid != null) {
-                    $sent = UserProfileUtility::sendUserAcceptRegistrationRequestMail($newUserProfile,
-                                    $community, $iuid);
+                    $sent = UserProfileUtility::sendUserAcceptRegistrationRequestMail($newUserProfile, $community, $iuid);
+                }
+
+                $msg1 = '#msg_complete_registration_result_1';
+                $msg2 = '#msg_complete_registration_result_2';
+                if ($this->adminModule->enableDlSemplification || $spidData) {
+                    $msg1 .= '_dl_semplification';
+                    $msg2 .= '_dl_semplification';
+                } elseif ($socialAccount) {
+                    $msg1 .= '_social_registration';
+                    $msg2 .= '_social_registration';
                 }
 
                 return $this->render('security-message',
-                                [
-                                    'title_message' => AmosAdmin::t('amosadmin',
-                                            '#msg_complete_registration_title'),
-                                    'result_message' => [
-                                        AmosAdmin::t('amosadmin',
-                                                '#msg_complete_registration_result_1') . '<br>' . Html::tag('span',
-                                                $model->email),
-                                        AmosAdmin::t('amosadmin',
-                                                '#msg_complete_registration_result_2')
-                                    ]
-                ]);
+                    [
+                        'title_message' => AmosAdmin::t('amosadmin', '#msg_complete_registration_title'),
+                        'result_message' => [
+                            AmosAdmin::t('amosadmin', $msg1) . '<br>' . Html::tag('span', Html::encode($model->email)),
+                            AmosAdmin::t('amosadmin', $msg2)
+                        ]
+                    ]);
             }
 
             //return $this->goHome();
@@ -345,20 +396,40 @@ class DefaultController extends Controller {
             $loginUrl = '/site/login';
         }
 
-        return $this->render(
-                        'register',
-                        [
-                            'model' => $model,
-                            'iuid' => $iuid,
-                            'loginUrl' => $loginUrl,
-        ]);
+        $viewToRender = $registerView . ($this->adminModule->enableDlSemplification ? '_dl_semplification' : '');
+        return $this->render($viewToRender,
+            [
+                'model' => $model,
+                'iuid' => $iuid,
+                'loginUrl' => $loginUrl,
+                'codiceFiscale' => ($this->adminModule->enableDlSemplification && $spidData && $spidData['codiceFiscale'] ? $spidData['codiceFiscale'] : null)
+            ]);
+    }
+
+    /**
+     * @param RegisterForm $model
+     * @param UserProfile $userProfile
+     */
+    protected function beforeAddUserContextAssociation($model, $userProfile)
+    {
+
+    }
+
+    /**
+     * @param RegisterForm $model
+     * @param UserProfile $userProfile
+     * @param bool $okUserContextAssociation
+     */
+    protected function afterAddUserContextAssociation($model, $userProfile, $okUserContextAssociation)
+    {
+
     }
 
     /**
      * @param RegisterForm $model
      */
     protected function beforeRegisterNewUser($model) {
-        
+
     }
 
     /**
@@ -366,7 +437,7 @@ class DefaultController extends Controller {
      * @param UserProfile $userProfile
      */
     protected function afterRegisterNewUser($model, $userProfile) {
-        
+        UserProfileUtility::updateTagTreesAfterUserCreation($userProfile);
     }
 
     /**
@@ -376,7 +447,7 @@ class DefaultController extends Controller {
     public function actionForgotPassword() {
 
         $this->setActionLayout();
-        
+
         if (!CurrentUser::isPlatformGuest()) {
             return $this->goHome();
         }
@@ -667,13 +738,13 @@ class DefaultController extends Controller {
         }
 
         if ($model->login()) {
-            
+
             if(\Yii::$app instanceof \open20\amos\core\applications\CmsApplication)
             {
                 \Yii::$app->session->set('access_token', \Yii::$app->getUser()->identity->getAccessToken());
-                
+
             }
-            
+
             /* per amos */
             if (isset(\Yii::$app->params['template-amos']) && \Yii::$app->params['template-amos']) {
                 $ruolo = \Yii::$app->authManager->getRole($model->ruolo);
@@ -710,7 +781,7 @@ class DefaultController extends Controller {
     }
 
     /**
-     * 
+     *
      */
     protected function setActionLayout()
     {

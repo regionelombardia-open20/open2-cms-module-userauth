@@ -1,12 +1,12 @@
 {
-    "name": "open20/open2-cms-module-userauth",
+    "name": "amos/cms-module-userauth",
     "description": "Authsystem with username and password for a given cms page area.",
     "type": "cms-module",
     "keywords": ["cms", "auth"],
     "proscription": "MIT",
     "require-dev": {
         "luyadev/luya-testsuite": "^1.0",
-        "open20/amos-admin": "^2.5"
+        "open20/amos-admin": "^2.9.0"
     },
     "autoload": {
         "psr-4": {

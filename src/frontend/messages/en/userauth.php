@@ -35,7 +35,7 @@ return [
     '#cookie_policy_content' => 'Having read the information provided pursuant to article 13 of the Italian Legislative Decree 196/2003 updated to Legislative Decree 101/2018, I hereby give my consent to the processing of my personal data for the purposes indicated in the above-mentioned notice.',
     '#cookie_policy_message' => 'View the processing of personal data and information on the use of cookies',
     '#cookie_policy_not_ok' => 'Reject',
-    '#cookie_policy_ok' => 'Accept',
+    '#cookie_policy_ok' => 'I confirm acknowledgment',
     '#cookie_policy_title' => 'Read document',
     '#text_button_register' => 'register',
     'userauth.models.user.rememberme' => 'Remember me',
