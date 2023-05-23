@@ -6,7 +6,8 @@
     "proscription": "MIT",
     "require-dev": {
         "luyadev/luya-testsuite": "^1.0",
-        "open20/amos-admin": "^2.9.0"
+        "open20/amos-admin": "^2.9.0",
+        "open20/amos-core": ">=1.29.1"
     },
     "autoload": {
         "psr-4": {

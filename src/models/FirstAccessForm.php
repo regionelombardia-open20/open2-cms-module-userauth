@@ -13,13 +13,13 @@ namespace amos\userauth\models;
 use common\models\User;
 use open20\amos\core\module\Module;
 use open20\amos\admin\AmosAdmin;
-use yii\base\Model;
+use open20\amos\core\models\AmosModel;
 use yii\helpers\ArrayHelper;
 
 /**
  * First-Login form
  */
-class FirstAccessForm extends Model
+class FirstAccessForm extends AmosModel
 {
     /**
      * 

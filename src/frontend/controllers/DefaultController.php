@@ -728,6 +728,8 @@ class DefaultController extends Controller
                 $username = $user->username;
                 $isFirstAccess = (empty($user->password_hash) && !$user->userProfile->privacy);
             }
+            
+            $model->setScenario(FirstAccessForm::RESET_PASSWORD);
         }
 
         $postLoginUrl = null;

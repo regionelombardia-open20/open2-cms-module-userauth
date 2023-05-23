@@ -5,10 +5,10 @@ namespace amos\userauth\models;
 use amos\userauth\frontend\Module;
 use open20\amos\core\helpers\Html;
 use open20\amos\core\user\User;
-use yii\base\Model;
+use open20\amos\core\models\AmosModel;
 
 
-class UserLoginForm extends Model
+class UserLoginForm extends AmosModel
 {
     
     public $adminModule = null;
