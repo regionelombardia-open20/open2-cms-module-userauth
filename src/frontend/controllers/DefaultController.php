@@ -95,7 +95,11 @@ class DefaultController extends Controller
             Yii::$app->getUser()->setReturnUrl('/userauthfrontend/default/reconciliation-thank-you');
         }
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && Yii::$app->user->login($model->user, $model->rememberme ? $this->module->remember_length : 0)) {
+        $authTimeout = 3600 * 24 * 30;
+        if(!empty(\Yii::$app->user->authTimeout)){
+            $authTimeout = \Yii::$app->user->authTimeout;
+        }
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && Yii::$app->user->login($model->user, $model->rememberme ? $authTimeout : 0)) {
             //DL Semplification
             /** @var \open20\amos\socialauth\Module $socialModule */
             $socialModule = Yii::$app->getModule('socialauth');

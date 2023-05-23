@@ -2,6 +2,7 @@
 
 use amos\userauth\frontend\Module;
 use open20\amos\admin\AmosAdmin;
+use open20\amos\core\utilities\CoreCommonUtility;
 use luya\helpers\Html;
 use open20\design\assets\BootstrapItaliaDesignAsset;
 use open20\design\components\bootstrapitalia\ActiveForm;
@@ -30,7 +31,7 @@ $adminModule = Yii::$app->getModule(AmosAdmin::getModuleName());
         ]
     );
     ?>
-    <?php if ($theModule && $theModule->enableUserPasswordLogin) : ?>
+    <?php if ($theModule && (CoreCommonUtility::platformSeenFromHeadquarter() || $theModule->enableUserPasswordLogin)) : ?>
         <?=
         $form->field($model, 'username')->textInput([
             'label' => Module::t('Indirizzo email')
