@@ -17,6 +17,7 @@ class Module extends BaseModule
     public $enableRegister = true;
     public $enableEmailLogin = false;
     public $enableUserPasswordLogin = true;
+    public $hideResetPasswordLogin = false;
     public $enableOverrideSPIDemail = false;
     public $enableDlSemplificationLight = false;
     public $viewLayout = null;
@@ -42,6 +43,12 @@ class Module extends BaseModule
     public static function setModuleName($name)
     {
         static::$moduleName = $name;
+    }
+
+
+    public function init()
+    {
+        parent::init();
     }
 
     /**

@@ -21,7 +21,7 @@ use open20\amos\invitations\models\Invitation;
 use open20\amos\socialauth\utility\SocialAuthUtility;
 use Hybridauth\User\Profile;
 use luya\cms\menu\QueryOperatorFieldInterface;
-use luya\Config;
+use luya\admin\models\Config;
 use luya\helpers\Url;
 use luya\web\Controller;
 use Yii;
@@ -127,8 +127,8 @@ class DefaultController extends Controller
             $to_go = null;
             if (!empty($redir)) {
                 $to_go = $this->redirect($this->getRedirectUrl($redir));
-            } elseif (!empty(Yii::$app->user->getReturnUrl())) {
-                $to_go = $this->redirect($this->getRedirectUrl(Yii::$app->user->getReturnUrl()));
+            } else {
+                $to_go = $this->redirect($this->getRedirectUrl(""));
             }
             return $to_go;
         }
@@ -457,6 +457,8 @@ class DefaultController extends Controller
 
                         }
                 }
+
+                $this->operationsAfterSave();
 
                 $thankyou_message =
                     Module::t('Gentile {nome} {cognome}', [
@@ -957,5 +959,15 @@ class DefaultController extends Controller
 
         $model = UserProfile::find()->andWhere(['user_id' => \Yii::$app->user->id])->one();
         return $this->render('reconciliation-thank-you', ['model' => $model]);
+    }
+
+    /**
+     * Empty function useful for overwriting controller (and this function) in poi-platform
+     * without do changes to this controller.
+     * @return bool
+     */
+    public function operationsAfterSave()
+    {
+        return true;
     }
 }

@@ -33,6 +33,7 @@ class UserLoginForm extends Model
     public function init()
     {
         parent::init();
+        $this->rememberme = true;
 
         $this->on(self::EVENT_AFTER_VALIDATE, [$this, 'validateUser']);
     }
