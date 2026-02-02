@@ -1,7 +1,7 @@
 <?php
 
 return [
-    '#password_rules' => 'La password deve contenere almeno: 8 caratteri, 1 o più lettere maiuscole e minuscole, 1 numero e 1 caratattere speciale',
+    '#password_rules' => 'La password deve contenere almeno: 8 caratteri, 1 o più lettere maiuscole e minuscole, 1 numero e 1 carattere speciale (!@#$%^&*)',
     '#first_access_fill_the_form' => 'Compila i seguenti campi per scegliere le tue credenziali di accesso alla piattaforma',
 
     '#title_reset_password' => 'Reset password',

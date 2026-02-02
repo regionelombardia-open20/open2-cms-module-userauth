@@ -46,7 +46,7 @@ if (!empty($reconciliation)) {
     );
     ?>
     <?php if ($reconciliation) { ?>
-        <h3><?= Module::t('Riconciliazione profilo esisitente') ?></h3>
+        <h3><?= Module::t('Riconciliazione profilo esistente') ?></h3>
         <p><?= Module::t('Per riconciliare la tua utenza principale e recuperare tutte le tue preferenze e impostazioni, loggati un’ultima volta con il tuo username/password o attraverso uno dei tuoi profili social con cui ti sei originariamente registrato alla Piattaforma') ?></p>
     <?php } ?>
     <?php

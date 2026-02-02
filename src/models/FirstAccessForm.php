@@ -147,7 +147,7 @@ class FirstAccessForm extends AmosModel
          * The password must contain one or more special characters
          * 
          */
-        $re = '/(?=^.{8,}$)(?=.*\d)(?=.*[!@#$%^&*]+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/m';
+        $re = '/(?=^.{8,}$)(?=.*\d)(?=.*[!@#$%^&*\.-]+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/m';
         $password = $this->password;
         
         preg_match_all($re, $password, $matches, PREG_SET_ORDER, 0);
@@ -155,7 +155,7 @@ class FirstAccessForm extends AmosModel
         if (count($matches) == 0) {
             $this->addError(
                 'password',
-                AmosAdmin::t('amosadmin', 'La password deve contenere almeno: 8 caratteri, 1 o più lettere maiuscole e minuscole, 1 numero e 1 caratattere speciale')
+                AmosAdmin::t('amosadmin', 'La password deve contenere almeno: 8 caratteri, 1 o più lettere maiuscole e minuscole, 1 numero e 1 carattere speciale')
             );
             
             return false;
