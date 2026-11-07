@@ -1,5 +1,6 @@
 {
     "name": "amos/cms-module-userauth",
+    "license": "GPL-3.0-or-later",
     "description": "Authsystem with username and password for a given cms page area.",
     "type": "cms-module",
     "keywords": ["cms", "auth"],
